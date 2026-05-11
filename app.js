@@ -544,10 +544,32 @@ function POIDetails({ poi, index, updateMap, onEnterSubmap, onCreateSubmap, onRe
           <label className="field-label">Nome</label>
           <input className="field-input" value={poi.name} placeholder={`Ponto ${index+1}`} onChange={e=>update({name:e.target.value})}/>
         </div>
+
+        {/* Public description */}
         <div className="field">
-          <label className="field-label">Descrição</label>
-          <textarea className="field-area" value={poi.description} placeholder="Notas, lendas, observações…" onChange={e=>update({description:e.target.value})}/>
+          <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:5}}>
+            <label className="field-label" style={{marginBottom:0}}>Descrição pública</label>
+            <span style={{display:'flex',alignItems:'center',gap:4,fontSize:11,color:'var(--green,#4a7a45)',fontWeight:600,background:'rgba(74,122,69,.1)',padding:'2px 8px',borderRadius:20}}>
+              <I.Eye size={11}/> Visível para todos
+            </span>
+          </div>
+          <textarea className="field-area" value={poi.descPublic||''} placeholder="O que os visitantes verão — lendas, descrições do local, lore…"
+            onChange={e=>update({descPublic:e.target.value})}/>
         </div>
+
+        {/* Private notes */}
+        <div className="field">
+          <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:5}}>
+            <label className="field-label" style={{marginBottom:0}}>Notas privadas</label>
+            <span style={{display:'flex',alignItems:'center',gap:4,fontSize:11,color:'var(--accent)',fontWeight:600,background:'var(--accent-bg)',padding:'2px 8px',borderRadius:20}}>
+              <I.Lock size={11}/> Só você vê
+            </span>
+          </div>
+          <textarea className="field-area" value={poi.description||''} placeholder="Anotações pessoais, spoilers, mecânicas de jogo…"
+            onChange={e=>update({description:e.target.value})}
+            style={{borderColor:'var(--accent)',borderStyle:'dashed'}}/>
+        </div>
+
         <div className="field">
           <label className="field-label">Categoria</label>
           <div className="tag-grid">
@@ -656,7 +678,7 @@ function TextDetails({ text, updateMap, onDelete, onEdit }) {
 }
 
 /* ── MAP OVERVIEW ── */
-function MapOverview({ map, updateMap, allMaps, selection, setSelection, onExportPNG, onShareURL, onSaveCloud, saveState, viewOnly }) {
+function MapOverview({ map, updateMap, allMaps, selection, setSelection, onExportPNG, onShareURL, onSaveCloud, saveState, viewOnly, onEnterSubmap }) {
   return (
     <>
       <div className="panel-section">
@@ -702,20 +724,52 @@ function MapOverview({ map, updateMap, allMaps, selection, setSelection, onExpor
               const active=!viewOnly&&selection?.type==='poi'&&selection.id===p.id;
               const sm=p.childMapId?allMaps[p.childMapId]:null;
               const tag=p.tagId?TAG_MAP[p.tagId]:null;
+              const hasPublicDesc = viewOnly && (p.descPublic||'').trim().length > 0;
               return (
-                <button key={p.id} className={`poi-list-item ${active?'active':''}`}
-                  onClick={()=>!viewOnly&&setSelection({type:'poi',id:p.id})}>
-                  <div className={`poi-list-marker ${sm?'has-submap':''}`} style={{background:tag?tag.bg:undefined,borderRadius:sm?'5px':'50%'}}>
-                    {tag?<span style={{fontSize:12}}>{tag.icon}</span>:(i+1)}
-                  </div>
-                  <div className="poi-list-info">
-                    <div className="poi-list-name">{p.name||`Ponto ${i+1}`}</div>
-                    {sm&&<div className="poi-list-sub">↳ {sm.name}</div>}
-                    {tag&&!sm&&<div className="poi-list-sub">{tag.label}</div>}
-                    {p.description&&<div className="poi-list-sub" style={{color:'var(--ink-soft)'}}>{p.description.slice(0,60)}{p.description.length>60?'…':''}</div>}
-                  </div>
-                  {!viewOnly&&<I.ChevronRight size={14}/>}
-                </button>
+                <React.Fragment key={p.id}>
+                  <button className={`poi-list-item ${active?'active':''}`}
+                    onClick={()=>viewOnly ? setSelection(prev=>prev?.id===p.id?null:{type:'poi',id:p.id}) : setSelection({type:'poi',id:p.id})}>
+                    <div className={`poi-list-marker ${sm?'has-submap':''}`} style={{background:tag?tag.bg:undefined,borderRadius:sm?'5px':'50%'}}>
+                      {tag?<span style={{fontSize:12}}>{tag.icon}</span>:(i+1)}
+                    </div>
+                    <div className="poi-list-info">
+                      <div className="poi-list-name">{p.name||`Ponto ${i+1}`}</div>
+                      {sm&&<div className="poi-list-sub">↳ {sm.name}</div>}
+                      {tag&&!sm&&<div className="poi-list-sub">{tag.label}</div>}
+                      {!viewOnly&&p.description&&<div className="poi-list-sub" style={{color:'var(--ink-soft)'}}>{p.description.slice(0,60)}{p.description.length>60?'…':''}</div>}
+                      {viewOnly&&hasPublicDesc&&<div className="poi-list-sub">{p.descPublic.slice(0,60)}{p.descPublic.length>60?'…':''}</div>}
+                    </div>
+                    {viewOnly
+                      ? (hasPublicDesc||sm) && <I.ChevronRight size={14} style={{transform: selection?.id===p.id ? 'rotate(90deg)' : 'none', transition:'transform .2s'}}/>
+                      : <I.ChevronRight size={14}/>}
+                  </button>
+                  {/* Expanded public detail card in viewer */}
+                  {viewOnly && selection?.id===p.id && (
+                    <div style={{
+                      margin:'0 0 4px 32px',
+                      background:'var(--bg-paper)',
+                      border:'1px solid var(--line-soft)',
+                      borderRadius:8,
+                      padding:'10px 12px',
+                      fontSize:13,
+                      lineHeight:1.6,
+                      color:'var(--ink-soft)',
+                      animation:'fadeSlideIn .18s ease',
+                    }}>
+                      {p.descPublic ? (
+                        <p style={{color:'var(--ink)',whiteSpace:'pre-wrap'}}>{p.descPublic}</p>
+                      ) : (
+                        <p style={{fontStyle:'italic',color:'var(--ink-muted)'}}>Sem descrição pública.</p>
+                      )}
+                      {sm && (
+                        <button className="btn btn-primary" style={{width:'100%',justifyContent:'center',marginTop:8}}
+                          onClick={e=>{e.stopPropagation();onEnterSubmap&&onEnterSubmap(sm.id);}}>
+                          <I.Enter size={14}/> Entrar no submapa
+                        </button>
+                      )}
+                    </div>
+                  )}
+                </React.Fragment>
               );
             })}
           </div>
@@ -1154,9 +1208,10 @@ function App() {
             </div>
             <div className="panel-body">
               <MapOverview map={currentMap} updateMap={()=>{}} allMaps={maps}
-                selection={null} setSelection={()=>{}}
+                selection={selection} setSelection={setSelection}
                 onExportPNG={null} onShareURL={null}
                 onSaveCloud={null} saveState={null}
+                onEnterSubmap={enterSubmap}
                 viewOnly={true}/>
             </div>
           </aside>
