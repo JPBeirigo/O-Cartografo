@@ -198,10 +198,156 @@ function TextAnnotation({ text, selected, editing, onPointerDown, onClick, onDou
   );
 }
 
+/* ============ COMPASS ROSE ============ */
+function CompassRose({ visible, onToggle }) {
+  return (
+    <div style={{
+      position:'absolute', bottom:20, left:'50%',
+      transform:'translateX(-50%)',
+      zIndex:15,
+      display:'flex', flexDirection:'column', alignItems:'center', gap:0,
+      pointerEvents:'none',
+    }}>
+      {/* The rose itself */}
+      {visible && (
+        <div style={{ pointerEvents:'none', filter:'drop-shadow(0 4px 12px rgba(28,42,62,.35))' }}>
+          <svg width="130" height="130" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <radialGradient id="rg1" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stopColor="#f8f1df"/>
+                <stop offset="100%" stopColor="#ddd1b4"/>
+              </radialGradient>
+              <radialGradient id="rg2" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stopColor="#e6dcc4"/>
+                <stop offset="100%" stopColor="#c8baa3"/>
+              </radialGradient>
+            </defs>
+
+            {/* Outer decorative ring */}
+            <circle cx="100" cy="100" r="96" fill="none" stroke="#c8baa3" strokeWidth="1.5" opacity="0.7"/>
+            <circle cx="100" cy="100" r="90" fill="rgba(239,230,211,0.92)" stroke="#c19b3b" strokeWidth="1"/>
+
+            {/* Degree tick marks */}
+            {Array.from({length:72}, (_,i) => {
+              const angle = (i * 5) * Math.PI / 180;
+              const isMajor = i % 6 === 0; // every 30°
+              const isMed   = i % 3 === 0; // every 15°
+              const r1 = 87, r2 = isMajor ? 80 : isMed ? 83 : 85;
+              return (
+                <line key={i}
+                  x1={100 + r1*Math.sin(angle)} y1={100 - r1*Math.cos(angle)}
+                  x2={100 + r2*Math.sin(angle)} y2={100 - r2*Math.cos(angle)}
+                  stroke="#c8baa3" strokeWidth={isMajor ? 1.5 : 0.8}/>
+              );
+            })}
+
+            {/* 8 intercardinal wind petals (small, background layer) */}
+            {[45,135,225,315].map(deg => {
+              const r = deg * Math.PI / 180;
+              const cos = Math.cos(r - Math.PI/2), sin = Math.sin(r - Math.PI/2);
+              const len = 52, wid = 9;
+              const tip  = [100 + len*cos,  100 + len*sin];
+              const lft  = [100 - wid*sin,  100 + wid*cos];
+              const rgt  = [100 + wid*sin,  100 - wid*cos];
+              const back = [100 - 14*cos,   100 - 14*sin];
+              return (
+                <polygon key={deg}
+                  points={`${tip[0]},${tip[1]} ${lft[0]},${lft[1]} ${back[0]},${back[1]} ${rgt[0]},${rgt[1]}`}
+                  fill="url(#rg2)" stroke="#c8baa3" strokeWidth="0.8" opacity="0.9"/>
+              );
+            })}
+
+            {/* 4 cardinal wind petals — dark half / light half */}
+            {[0,90,180,270].map(deg => {
+              const r = deg * Math.PI / 180;
+              const cos = Math.cos(r - Math.PI/2), sin = Math.sin(r - Math.PI/2);
+              const perp = [sin, -cos];
+              const len = 72, wid = 13;
+              const tip  = [100 + len*cos,  100 + len*sin];
+              const lft  = [100 - wid*perp[0],  100 - wid*perp[1]];
+              const rgt  = [100 + wid*perp[0],  100 + wid*perp[1]];
+              const back = [100 - 18*cos,   100 - 18*sin];
+              const mid  = [100, 100];
+              // dark half
+              const darkFill = deg === 0 ? '#b85c38' : '#1c2a3e';
+              return (
+                <g key={deg}>
+                  <polygon
+                    points={`${tip[0]},${tip[1]} ${lft[0]},${lft[1]} ${back[0]},${back[1]}`}
+                    fill={darkFill} stroke="#c19b3b" strokeWidth="0.6"/>
+                  <polygon
+                    points={`${tip[0]},${tip[1]} ${rgt[0]},${rgt[1]} ${back[0]},${back[1]}`}
+                    fill="url(#rg1)" stroke="#c19b3b" strokeWidth="0.6"/>
+                </g>
+              );
+            })}
+
+            {/* Inner decorative circles */}
+            <circle cx="100" cy="100" r="18" fill="url(#rg1)" stroke="#c19b3b" strokeWidth="1.5"/>
+            <circle cx="100" cy="100" r="13" fill="none" stroke="#c8baa3" strokeWidth="0.8"/>
+            <circle cx="100" cy="100" r="6"  fill="#c19b3b"/>
+            <circle cx="100" cy="100" r="3"  fill="#1c2a3e"/>
+
+            {/* Cardinal labels */}
+            <text x="100" y="18"  textAnchor="middle" dominantBaseline="middle"
+              fontFamily="'Fraunces',Georgia,serif" fontWeight="700" fontSize="14"
+              fill="#b85c38" letterSpacing="0">N</text>
+            <text x="100" y="184" textAnchor="middle" dominantBaseline="middle"
+              fontFamily="'Fraunces',Georgia,serif" fontWeight="600" fontSize="12"
+              fill="#1c2a3e">S</text>
+            <text x="184"  y="101" textAnchor="middle" dominantBaseline="middle"
+              fontFamily="'Fraunces',Georgia,serif" fontWeight="600" fontSize="12"
+              fill="#1c2a3e">L</text>
+            <text x="16"   y="101" textAnchor="middle" dominantBaseline="middle"
+              fontFamily="'Fraunces',Georgia,serif" fontWeight="600" fontSize="12"
+              fill="#1c2a3e">O</text>
+
+            {/* Intercardinal labels */}
+            {[['NL',142,28],['SL',142,172],['SO',58,172],['NO',58,28]].map(([lbl,x,y]) => (
+              <text key={lbl} x={x} y={y} textAnchor="middle" dominantBaseline="middle"
+                fontFamily="'Fraunces',Georgia,serif" fontSize="8" fill="#6b7787">{lbl}</text>
+            ))}
+
+            {/* Gold ring accent */}
+            <circle cx="100" cy="100" r="26" fill="none" stroke="#c19b3b" strokeWidth="0.8" strokeDasharray="3 3"/>
+          </svg>
+        </div>
+      )}
+
+      {/* Toggle button */}
+      <button
+        onClick={onToggle}
+        title={visible ? 'Ocultar rosa dos ventos' : 'Mostrar rosa dos ventos'}
+        style={{
+          pointerEvents:'auto',
+          marginTop: visible ? 4 : 0,
+          width:28, height:28,
+          borderRadius:'50%',
+          background:'var(--bg-paper)',
+          border:'1px solid var(--line)',
+          boxShadow:'0 2px 6px var(--shadow-2)',
+          display:'flex', alignItems:'center', justifyContent:'center',
+          color: visible ? 'var(--gold)' : 'var(--ink-muted)',
+          cursor:'pointer',
+          transition:'all .2s',
+          fontSize:10,
+          fontFamily:"'Fraunces',serif",
+          fontWeight:700,
+          letterSpacing:'-.02em',
+        }}
+        onMouseEnter={e => e.currentTarget.style.background='var(--bg-base)'}
+        onMouseLeave={e => e.currentTarget.style.background='var(--bg-paper)'}
+      >
+        {visible ? '✕' : 'N'}
+      </button>
+    </div>
+  );
+}
+
 /* ============ MAP CANVAS ============ */
 function MapCanvas({ map, viewport, setViewport, tool, setTool,
   selection, setSelection, editingTextId, setEditingTextId,
-  updateMap, onEnterSubmap }) {
+  updateMap, onEnterSubmap, showCompass, onToggleCompass }) {
 
   const wrapRef = useRef(null);
   const canvasRef = useRef(null);
@@ -423,6 +569,8 @@ function MapCanvas({ map, viewport, setViewport, tool, setTool,
         <button className="zoom-btn" onClick={() => zoomAtCenter(1/1.25)} aria-label="Diminuir zoom"><I.ZoomOut size={16}/></button>
         <button className="zoom-btn" onClick={fitToView} aria-label="Ajustar à tela"><I.Maximize size={15}/></button>
       </div>
+
+      <CompassRose visible={showCompass} onToggle={onToggleCompass}/>
 
       <div className="hint">
         <I.Info size={14} className="hint-icon"/>
@@ -712,6 +860,7 @@ function App() {
   const [selection, setSelection] = useState(null);
   const [editingTextId, setEditingTextId] = useState(null);
   const [panelOpen, setPanelOpen] = useState(true);
+  const [showCompass, setShowCompass] = useState(true);
 
   const currentMapId = stack[stack.length - 1] || null;
   const currentMap = currentMapId ? maps[currentMapId] : null;
@@ -953,6 +1102,8 @@ function App() {
           setEditingTextId={setEditingTextId}
           updateMap={updateMap}
           onEnterSubmap={enterSubmap}
+          showCompass={showCompass}
+          onToggleCompass={() => setShowCompass(v => !v)}
         />
 
         {panelOpen && (
