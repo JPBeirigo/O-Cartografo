@@ -133,7 +133,7 @@ function AuthScreen({ onAuth }) {
       <div className="auth-card">
         <div className="auth-emblem"><I.Compass size={28} strokeWidth={1.6}/></div>
         <h1 className="auth-title display">O <em>Cartógrafo</em></h1>
-        <p className="auth-sub">Mapas interativos aninhados com pontos de interesse</p>
+        <p className="auth-sub">Mapeando sua Jornada Épica, desde a pequena vila do interior até o Ninho do Dragão... que por acaso fica dentro de um vulcão.</p>
 
         <div className="auth-tabs">
           <button className={`auth-tab ${tab==='login'?'active':''}`} onClick={()=>{setTab('login');setError('');setMessage('');}}>Entrar</button>
@@ -217,7 +217,7 @@ function Dashboard({ user, onOpen, onNewLocal, onSignOut, darkMode, onToggleDark
     <div className="dashboard">
       <div className="dash-header">
         <div className="brand-mark"><I.Compass size={18} strokeWidth={1.7}/></div>
-        <span className="dash-title display">Meus Mapas</span>
+        <span className="dash-title display">O Cartógrafo</span>
         <div style={{display:'flex',alignItems:'center',gap:8,marginLeft:'auto'}}>
           <div className="user-badge"><I.Lock size={12}/><strong>{user.email}</strong></div>
           <button className="btn btn-icon" onClick={onToggleDark} title={darkMode?'Modo claro':'Modo escuro'}>
@@ -1046,7 +1046,7 @@ function App() {
       <div className="topbar">
         <div className="brand">
           <div className="brand-mark"><I.Compass size={18} strokeWidth={1.7}/></div>
-          <div className="brand-text"><span className="brand-name">Cartógrafo</span></div>
+          <div className="brand-text"><span className="brand-name">O Cartógrafo</span></div>
         </div>
         {user&&<button className="btn btn-ghost" onClick={()=>setScreen('dashboard')}><I.ArrowLeft size={15}/> Meus mapas</button>}
       </div>
@@ -1065,7 +1065,7 @@ function App() {
       <header className="topbar">
         <div className="brand">
           <div className="brand-mark"><I.Compass size={18} strokeWidth={1.7}/></div>
-          <div className="brand-text"><span className="brand-name">Cartógrafo</span><span className="brand-sub">{viewOnly?'Visualização':'Mapas aninhados'}</span></div>
+          <div className="brand-text"><span className="brand-name">O Cartógrafo</span><span className="brand-sub">{viewOnly?'Visualização':'Mapeando sua Jornada Épica'}</span></div>
         </div>
         <div className="breadcrumb">
           {stack.length>1&&<button className="btn btn-icon" onClick={goBack} title="Voltar (Esc)" style={{marginRight:4}}><I.ArrowLeft size={16}/></button>}
