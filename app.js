@@ -118,7 +118,7 @@ function Welcome({ onLoad, onImport }) {
         </div>
         <div className="welcome-features">
           <div className="feat"><div className="feat-icon"><I.Pin size={16}/></div><div className="feat-title">Pontos de interesse</div><div className="feat-desc">Marque locais com tags, nomes e descrições.</div></div>
-          <div className="feat"><div className="feat-icon"><I.Layers size={16}/></div><div className="feat-title">Mapas aninhados</div><div className="feat-desc">Cada ponto pode esconder outro mapa em infinitos níveis.</div></div>
+          <div className="feat"><div className="feat-icon"><I.Layers size={16}/></div><div className="feat-title">Mapas Interativos</div><div className="feat-desc">Cada ponto pode esconder outro mapa em infinitos níveis.</div></div>
           <div className="feat"><div className="feat-icon"><I.Type size={16}/></div><div className="feat-title">Textos e legendas</div><div className="feat-desc">Anotações com cor, tamanho e rotação.</div></div>
         </div>
       </div>
