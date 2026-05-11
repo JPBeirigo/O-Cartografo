@@ -908,7 +908,7 @@ function App() {
       <header className="topbar">
         <div className="brand">
           <div className="brand-mark"><I.Compass size={18} strokeWidth={1.7}/></div>
-          <div className="brand-text"><span className="brand-name">Cartógrafo</span><span className="brand-sub">Mapas aninhados</span></div>
+          <div className="brand-text"><span className="brand-name">Cartógrafo</span><span className="brand-sub">Mapas Interativos</span></div>
         </div>
         <div className="breadcrumb">
           {stack.length>1&&<button className="btn btn-icon" onClick={goBack} title="Voltar (Esc)" style={{marginRight:4}}><I.ArrowLeft size={16}/></button>}
