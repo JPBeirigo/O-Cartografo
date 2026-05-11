@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <rect width="64" height="64" rx="14" fill="#1c2a3e"/>
+
+  <circle cx="32" cy="32" r="29" fill="#efe6d3" opacity=".95"/>
+  <circle cx="32" cy="32" r="29" fill="none" stroke="#c19b3b" stroke-width="1.2" opacity=".7"/>
+
+  <polygon points="52,12 36,32 32,28" fill="#c8baa3" opacity=".8"/> <polygon points="52,52 32,36 36,32" fill="#c8baa3" opacity=".8"/> <polygon points="12,52 28,32 32,36" fill="#c8baa3" opacity=".8"/> <polygon points="12,12 32,28 28,32" fill="#c8baa3" opacity=".8"/> <polygon points="32,5 28,32 32,32" fill="#b85c38"/>
+  <polygon points="32,5 36,32 32,32" fill="#cc7050"/>
+
+  <polygon points="32,59 28,32 32,32" fill="#1c2a3e"/>
+  <polygon points="32,59 36,32 32,32" fill="#364a60"/>
+
+  <polygon points="59,32 32,28 32,32" fill="#1c2a3e"/>
+  <polygon points="59,32 32,36 32,32" fill="#364a60"/>
+
+  <polygon points="5,32 32,28 32,32" fill="#1c2a3e"/>
+  <polygon points="5,32 32,36 32,32" fill="#364a60"/>
+
+  <circle cx="32" cy="32" r="9" fill="#f8f1df" stroke="#c19b3b" stroke-width="1.4"/>
+  <circle cx="32" cy="32" r="3.8" fill="#c19b3b"/>
+  <circle cx="32" cy="32" r="1.8" fill="#1c2a3e"/>
+
+  <text x="32" y="18.5" text-anchor="middle" dominant-baseline="middle"
+    font-family="Georgia,serif" font-weight="700" font-size="7.5"
+    fill="#000000">N</text>
+</svg>
