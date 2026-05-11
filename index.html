@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>O Cartógrafo</title>
+  <title>Cartógrafo — Mapas Interativos Aninhados</title>
 
-  <!-- Favicon — SVG compass inline -->
-  <link rel="icon" type="image/svg+xml" href="Favicon.svg">
-  <link rel="apple-touch-icon" href="Favicon.svg">
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="apple-touch-icon" href="favicon.svg">
 
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -17,6 +17,9 @@
   <!-- App styles -->
   <link rel="stylesheet" href="styles.css">
 
+  <!-- Supabase SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+
   <!-- React & Babel (UMD — no build step required) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
@@ -24,8 +27,6 @@
 </head>
 <body>
   <div id="root"></div>
-
-  <!-- App logic (JSX transpiled in-browser by Babel) -->
   <script type="text/babel" data-presets="react" src="app.js"></script>
 </body>
 </html>
