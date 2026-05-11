@@ -49,6 +49,7 @@ const I = {
   Enter: (p) => <Ico {...p} d={<><path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></>}/>,
   Edit: (p) => <Ico {...p} d={<><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></>}/>,
   Menu: (p) => <Ico {...p} d={<><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></>}/>,
+  Rotate: (p) => <Ico {...p} d={<><path d="M21.5 2v6h-6"/><path d="M21.34 15.57a10 10 0 11-.57-8.38"/></>}/>,
 };
 
 const TOOLS = { SELECT:'select', POI:'poi', TEXT:'text' };
@@ -85,8 +86,7 @@ function Welcome({ onLoad, onImport }) {
         <div className="welcome-emblem"><I.Compass size={32} strokeWidth={1.6}/></div>
         <h1 className="welcome-title display">O <em>Cartógrafo</em></h1>
         <p className="welcome-sub">
-          Crie mapas interativos com pontos de interesse aninhados. Cada ponto pode abrir
-          um novo mapa, que por sua vez pode ter seus próprios pontos — exploração sem limites.
+          Mapeando sua Jornada Épica, desde o pequeno vilarejo no interior, até o Ninho do Dragão... que por acaso fica em um vulcão
         </p>
         <div className="welcome-actions">
           <button className="btn btn-primary" onClick={() => inputRef.current?.click()}>
@@ -163,10 +163,19 @@ function TextAnnotation({ text, selected, editing, onPointerDown, onClick, onDou
     if (editing && inputRef.current) { inputRef.current.focus(); inputRef.current.select(); }
   }, [editing]);
 
+  const rotation = text.rotation || 0;
+  const color = text.color || 'var(--ink)';
+
   return (
     <div
       className={`text-ann ${selected ? 'selected' : ''}`}
-      style={{ left: `${text.x}px`, top: `${text.y}px`, fontSize: `${text.size || 18}px` }}
+      style={{
+        left: `${text.x}px`,
+        top: `${text.y}px`,
+        fontSize: `${text.size || 18}px`,
+        transform: `translate(-50%, -50%) rotate(${rotation}deg)`,
+        color: selected ? undefined : color,
+      }}
       onPointerDown={editing ? undefined : onPointerDown}
       onClick={editing ? undefined : onClick}
       onDoubleClick={editing ? undefined : onDoubleClick}
@@ -176,7 +185,7 @@ function TextAnnotation({ text, selected, editing, onPointerDown, onClick, onDou
           ref={inputRef}
           className="text-ann-input"
           value={val}
-          style={{ fontSize: `${text.size || 18}px` }}
+          style={{ fontSize: `${text.size || 18}px`, color }}
           onChange={e => setVal(e.target.value)}
           onKeyDown={e => {
             if (e.key === 'Enter') { e.preventDefault(); onCommit(val); }
@@ -502,10 +511,24 @@ function POIDetails({ poi, index, updateMap, onEnterSubmap, onCreateSubmap, onRe
 }
 
 /* ============ TEXT DETAILS ============ */
+const PRESET_COLORS = [
+  { label: 'Tinta',    value: '#1c2a3e' },
+  { label: 'Terracota', value: '#b85c38' },
+  { label: 'Ouro',    value: '#c19b3b' },
+  { label: 'Verde',   value: '#4a7a45' },
+  { label: 'Azul',    value: '#3a6a9e' },
+  { label: 'Vinho',   value: '#7a2a3e' },
+  { label: 'Areia',   value: '#8a7455' },
+  { label: 'Branco',  value: '#f8f1df' },
+];
+
 function TextDetails({ text, updateMap, onDelete, onEdit }) {
   const update = (patch) => {
     updateMap(m => ({ ...m, texts: m.texts.map(t => t.id === text.id ? { ...t, ...patch } : t) }));
   };
+  const currentColor = text.color || '#1c2a3e';
+  const rotation = text.rotation || 0;
+
   return (
     <>
       <div className="panel-section">
@@ -514,13 +537,86 @@ function TextDetails({ text, updateMap, onDelete, onEdit }) {
           <textarea className="field-area" value={text.content}
             onChange={e => update({ content: e.target.value })}/>
         </div>
+
         <div className="field">
           <label className="field-label">Tamanho da fonte: {text.size || 18}px</label>
           <input type="range" min="10" max="64" value={text.size || 18}
             onChange={e => update({ size: parseInt(e.target.value, 10) })}
             style={{accentColor:'var(--accent)'}}/>
         </div>
+
+        <div className="field">
+          <label className="field-label">Rotação: {rotation}°</label>
+          <input type="range" min="-180" max="180" value={rotation}
+            onChange={e => update({ rotation: parseInt(e.target.value, 10) })}
+            style={{accentColor:'var(--accent)'}}/>
+          <div style={{display:'flex',gap:6,marginTop:4}}>
+            {[-90, -45, 0, 45, 90].map(deg => (
+              <button key={deg}
+                className={`btn btn-ghost ${rotation === deg ? 'btn-primary' : ''}`}
+                style={{flex:1,justifyContent:'center',padding:'4px 0',fontSize:11}}
+                onClick={() => update({ rotation: deg })}>
+                {deg}°
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="field">
+          <label className="field-label" style={{marginBottom:6}}>Cor da fonte</label>
+          <div style={{display:'flex',gap:6,flexWrap:'wrap',alignItems:'center'}}>
+            {PRESET_COLORS.map(c => (
+              <button
+                key={c.value}
+                title={c.label}
+                onClick={() => update({ color: c.value })}
+                style={{
+                  width: 24, height: 24, borderRadius: '50%',
+                  background: c.value,
+                  border: currentColor === c.value
+                    ? '2.5px solid var(--accent)'
+                    : '2px solid var(--line)',
+                  boxShadow: currentColor === c.value ? '0 0 0 2px var(--accent-bg)' : 'none',
+                  transition: 'all .15s',
+                  flexShrink: 0,
+                  cursor: 'pointer',
+                }}
+              />
+            ))}
+            {/* Custom color picker */}
+            <label title="Cor personalizada" style={{
+              width: 24, height: 24, borderRadius: '50%',
+              border: '2px dashed var(--line)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              cursor: 'pointer', overflow: 'hidden', flexShrink: 0,
+              background: 'var(--bg-base)',
+            }}>
+              <I.Plus size={12}/>
+              <input type="color" value={currentColor}
+                onChange={e => update({ color: e.target.value })}
+                style={{
+                  opacity: 0, position: 'absolute',
+                  width: 0, height: 0, pointerEvents: 'none',
+                }}/>
+            </label>
+          </div>
+          {/* Show current color hex if custom */}
+          {!PRESET_COLORS.find(c => c.value === currentColor) && (
+            <div style={{
+              marginTop: 6, fontSize: 11, color: 'var(--ink-muted)',
+              display: 'flex', alignItems: 'center', gap: 6,
+            }}>
+              <span style={{
+                width: 12, height: 12, borderRadius: '50%',
+                background: currentColor, border: '1px solid var(--line)',
+                display: 'inline-block', flexShrink: 0,
+              }}/>
+              Cor personalizada: <code style={{fontFamily:'monospace'}}>{currentColor}</code>
+            </div>
+          )}
+        </div>
       </div>
+
       <div className="divider"/>
       <div className="panel-section" style={{flexDirection:'row',gap:8}}>
         <button className="btn btn-ghost" onClick={onEdit} style={{flex:1,justifyContent:'center'}}>

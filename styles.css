@@ -149,13 +149,14 @@ input,textarea{font:inherit;color:inherit}
 
 /* Text annotations — image space (scale with zoom) */
 .text-ann{
-  position:absolute;transform:translate(-50%,-50%);
+  position:absolute;
   cursor:pointer;user-select:none;z-index:4;
   font-family:'Fraunces',serif;font-style:italic;font-weight:500;
   color:var(--ink);
   text-shadow:0 1px 0 rgba(248,241,223,.8),0 0 8px rgba(248,241,223,.6);
-  padding:4px 8px;border-radius:4px;transition:background .15s;
+  padding:4px 8px;border-radius:4px;transition:background .15s, outline .15s;
   white-space:nowrap;line-height:1.2;
+  transform-origin: center center;
 }
 .text-ann:hover{background:rgba(248,241,223,.5)}
 .text-ann.selected{
