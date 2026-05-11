@@ -849,6 +849,7 @@ function App() {
     setRootMapId(data.data.rootMapId);
     setStack([data.data.rootMapId]);
     setViewOnly(true);
+    setPanelOpen(false);
     setScreen('editor');
     setAuthLoading(false);
   };
@@ -1091,11 +1092,11 @@ function App() {
           {!viewOnly&&<button className="btn btn-ghost" onClick={handleExport}><I.Download size={15}/><span>Exportar</span></button>}
           {user&&!viewOnly&&<button className="btn btn-ghost" onClick={()=>setScreen('dashboard')}><I.Map size={15}/><span>Meus mapas</span></button>}
           {viewOnly&&<button className="btn btn-ghost" onClick={()=>window.close()}><I.X size={15}/><span>Fechar</span></button>}
-          {!viewOnly&&<button className="btn btn-icon" onClick={()=>setPanelOpen(o=>!o)}><I.Menu size={16}/></button>}
+          <button className="btn btn-icon" onClick={()=>setPanelOpen(o=>!o)} aria-label="Alternar painel"><I.Menu size={16}/></button>
         </div>
       </header>
 
-      <div className={`shell ${!panelOpen||viewOnly?'no-panel':''}`}>
+      <div className={`shell ${viewOnly?'viewer':''} ${!panelOpen?'no-panel':''}`}>
         <Toolbar tool={tool} setTool={setTool}
           onZoomIn={()=>setViewport(vp=>vp&&({...vp,scale:clamp(vp.scale*1.25,.05,20)}))}
           onZoomOut={()=>setViewport(vp=>vp&&({...vp,scale:clamp(vp.scale/1.25,.05,20)}))}
@@ -1149,6 +1150,7 @@ function App() {
                 <div className="panel-title-icon"><I.Eye size={14}/></div>
                 <span className="panel-title-text">{currentMap.name}</span>
               </div>
+              <button className="btn btn-icon" onClick={()=>setPanelOpen(false)} title="Fechar painel"><I.X size={15}/></button>
             </div>
             <div className="panel-body">
               <MapOverview map={currentMap} updateMap={()=>{}} allMaps={maps}
