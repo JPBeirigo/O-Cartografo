@@ -93,63 +93,7 @@ function Toast({ messages }) {
   );
 }
 
-/* ── COMPASS ROSE SVG ── */
-function CompassRoseSVG() {
-  return (
-    <svg width="65" height="65" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <radialGradient id="rg1" cx="50%" cy="50%" r="50%">
-          <stop offset="0%" stopColor="#f8f1df"/>
-          <stop offset="100%" stopColor="#ddd1b4"/>
-        </radialGradient>
-        <radialGradient id="rg2" cx="50%" cy="50%" r="50%">
-          <stop offset="0%" stopColor="#e6dcc4"/>
-          <stop offset="100%" stopColor="#c8baa3"/>
-        </radialGradient>
-      </defs>
-      <circle cx="100" cy="100" r="96" fill="none" stroke="#c8baa3" strokeWidth="1.5" opacity=".7"/>
-      <circle cx="100" cy="100" r="90" fill="rgba(239,230,211,0.92)" stroke="#c19b3b" strokeWidth="1"/>
-      {Array.from({length:72},(_,i)=>{
-        const ang=(i*5)*Math.PI/180, isMaj=i%6===0, isMed=i%3===0;
-        const r1=87, r2=isMaj?80:isMed?83:85;
-        return <line key={i}
-          x1={100+r1*Math.sin(ang)} y1={100-r1*Math.cos(ang)}
-          x2={100+r2*Math.sin(ang)} y2={100-r2*Math.cos(ang)}
-          stroke="#c8baa3" strokeWidth={isMaj?1.5:.8}/>;
-      })}
-      {[45,135,225,315].map(deg=>{
-        const r=deg*Math.PI/180, cos=Math.cos(r-Math.PI/2), sin=Math.sin(r-Math.PI/2);
-        const len=52, wid=9;
-        return <polygon key={deg}
-          points={`${100+len*cos},${100+len*sin} ${100-wid*sin},${100+wid*cos} ${100-14*cos},${100-14*sin} ${100+wid*sin},${100-wid*cos}`}
-          fill="url(#rg2)" stroke="#c8baa3" strokeWidth=".8" opacity=".9"/>;
-      })}
-      {[0,90,180,270].map(deg=>{
-        const r=deg*Math.PI/180, cos=Math.cos(r-Math.PI/2), sin=Math.sin(r-Math.PI/2);
-        const perp=[sin,-cos], len=72, wid=13;
-        const tip=[100+len*cos,100+len*sin], lft=[100-wid*perp[0],100-wid*perp[1]];
-        const rgt=[100+wid*perp[0],100+wid*perp[1]], back=[100-18*cos,100-18*sin];
-        const df=deg===0?'#b85c38':'#1c2a3e';
-        return <g key={deg}>
-          <polygon points={`${tip[0]},${tip[1]} ${lft[0]},${lft[1]} ${back[0]},${back[1]}`} fill={df} stroke="#c19b3b" strokeWidth=".6"/>
-          <polygon points={`${tip[0]},${tip[1]} ${rgt[0]},${rgt[1]} ${back[0]},${back[1]}`} fill="url(#rg1)" stroke="#c19b3b" strokeWidth=".6"/>
-        </g>;
-      })}
-      <circle cx="100" cy="100" r="18" fill="url(#rg1)" stroke="#c19b3b" strokeWidth="1.5"/>
-      <circle cx="100" cy="100" r="13" fill="none" stroke="#c8baa3" strokeWidth=".8"/>
-      <circle cx="100" cy="100" r="6" fill="#c19b3b"/>
-      <circle cx="100" cy="100" r="3" fill="#1c2a3e"/>
-      <text x="100" y="18" textAnchor="middle" dominantBaseline="middle" fontFamily="'Fraunces',Georgia,serif" fontWeight="700" fontSize="14" fill="#b85c38">N</text>
-      <text x="100" y="184" textAnchor="middle" dominantBaseline="middle" fontFamily="'Fraunces',Georgia,serif" fontWeight="600" fontSize="12" fill="#1c2a3e">S</text>
-      <text x="184" y="101" textAnchor="middle" dominantBaseline="middle" fontFamily="'Fraunces',Georgia,serif" fontWeight="600" fontSize="12" fill="#1c2a3e">L</text>
-      <text x="16" y="101" textAnchor="middle" dominantBaseline="middle" fontFamily="'Fraunces',Georgia,serif" fontWeight="600" fontSize="12" fill="#1c2a3e">O</text>
-      {[['NL',142,28],['SL',142,172],['SO',58,172],['NO',58,28]].map(([l,x,y])=>
-        <text key={l} x={x} y={y} textAnchor="middle" dominantBaseline="middle" fontFamily="'Fraunces',Georgia,serif" fontSize="8" fill="#6b7787">{l}</text>
-      )}
-      <circle cx="100" cy="100" r="26" fill="none" stroke="#c19b3b" strokeWidth=".8" strokeDasharray="3 3"/>
-    </svg>
-  );
-}
+
 
 /* ── WELCOME ── */
 function Welcome({ onLoad, onImport }) {
@@ -237,7 +181,7 @@ function TextAnnotation({ text, selected, editing, onPointerDown, onClick, onDou
 /* ── MAP CANVAS ── */
 function MapCanvas({ map, viewport, setViewport, tool, setTool,
   selection, setSelection, editingTextId, setEditingTextId,
-  updateMap, onEnterSubmap, showCompass, onToggleCompass, transitioning }) {
+  updateMap, onEnterSubmap, transitioning }) {
 
   const wrapRef = useRef(null);
   const canvasRef = useRef(null);
@@ -391,17 +335,8 @@ function MapCanvas({ map, viewport, setViewport, tool, setTool,
         })}
       </div>
 
-      {/* Compass rose — bottom center */}
-      <div className={`compass-rose ${showCompass?'':'off'}`}>
-        <CompassRoseSVG/>
-      </div>
-
       {/* Right controls column */}
       <div className="map-controls">
-        <button className={`compass-toggle ${showCompass?'on':''}`} onClick={onToggleCompass}
-          title={showCompass?'Ocultar rosa dos ventos':'Mostrar rosa dos ventos'}>
-          <I.Compass size={17}/>
-        </button>
         <div className="zoom-controls">
           <button className="zoom-btn" onClick={()=>zoomAtCenter(1.25)}><I.Plus size={16}/></button>
           <div className="zoom-level">{Math.round(viewport.scale*100)}%</div>
@@ -701,7 +636,6 @@ function App() {
   const [selection, setSelection] = useState(null);
   const [editingTextId, setEditingTextId] = useState(null);
   const [panelOpen, setPanelOpen] = useState(true);
-  const [showCompass, setShowCompass] = useState(true);
   const [darkMode, setDarkMode] = useState(false);
   const [transitioning, setTransitioning] = useState(false);
   const [toasts, setToasts] = useState([]);
@@ -735,30 +669,66 @@ function App() {
     return ()=>clearTimeout(saveTimer.current);
   },[maps, rootMapId]);
 
-  /* ── load from localStorage or URL on mount ── */
+  /* ── load from URL or localStorage on mount ── */
   useEffect(()=>{
-    const tryLoad = (raw) => {
+    const tryLoad = (raw, imageRegistry) => {
       try {
         const data = JSON.parse(raw);
-        if(data?.maps&&data?.rootMapId){
-          setMaps(data.maps); setRootMapId(data.rootMapId);
-          setStack([data.rootMapId]); return true;
+        if (!data?.maps || !data?.rootMapId) return false;
+        // Restore images from registry if available
+        if (imageRegistry) {
+          Object.keys(data.maps).forEach(id => {
+            if (imageRegistry[id]) data.maps[id].imageUrl = imageRegistry[id];
+          });
         }
-      } catch{}
-      return false;
+        setMaps(data.maps);
+        setRootMapId(data.rootMapId);
+        setStack([data.rootMapId]);
+        return true;
+      } catch { return false; }
     };
-    // URL takes priority
+
     const hash = window.location.hash.slice(1);
-    if(hash){
+    if (hash) {
       try {
-        const raw = decodeURIComponent(atob(hash));
-        if(tryLoad(raw)){ toast('Projeto carregado via link','🔗'); return; }
-      } catch{}
+        if (hash.startsWith('s:')) {
+          // New compact format: s:<shareKey>:<base64>
+          const parts = hash.split(':');
+          const shareKey = parts[1];
+          const encoded = parts.slice(2).join(':'); // in case base64 has colons
+          const raw = decodeURIComponent(escape(atob(encoded)));
+          // Try to restore images from local registry (same-browser share)
+          let imageRegistry = null;
+          try { imageRegistry = JSON.parse(localStorage.getItem(`cartografo_img_${shareKey}`)); } catch {}
+          const loaded = tryLoad(raw, imageRegistry);
+          if (loaded) {
+            const hasMissingImages = !imageRegistry || Object.values(JSON.parse(raw).maps).some(m => !imageRegistry[m.id]);
+            if (imageRegistry && !hasMissingImages) {
+              toast('Projeto carregado via link', '🔗');
+            } else {
+              toast('Estrutura carregada — reimporte as imagens dos mapas', '🔗');
+            }
+            window.location.hash = ''; // clean URL
+            return;
+          }
+        } else {
+          // Legacy format: plain base64
+          const raw = decodeURIComponent(atob(hash));
+          if (tryLoad(raw, null)) {
+            toast('Projeto carregado via link', '🔗');
+            window.location.hash = '';
+            return;
+          }
+        }
+      } catch {}
     }
-    // Then localStorage
+
+    // Fallback: localStorage autosave
     const saved = localStorage.getItem(LS_KEY);
-    if(saved && tryLoad(saved)){ toast('Projeto restaurado automaticamente','💾'); }
-  },[]);
+    if (saved && tryLoad(saved, null)) {
+      toast('Projeto restaurado automaticamente', '💾');
+    }
+  }, []);
 
   const updateMap = useCallback(updater=>{
     setMaps(prev=>{
@@ -814,13 +784,58 @@ function App() {
     } catch(e){ toast('Erro ao exportar PNG','❌'); }
   };
 
+  /* ── SHARE URL (compact) ──────────────────────────────────────────────────
+     Images (base64) are the bulk of the data — they can't go in a URL.
+     Strategy:
+       1. Strip imageUrl from every map → store stripped project in URL hash
+       2. Persist a separate imageRegistry { [mapId]: imageUrl } in localStorage
+          under a short share-key so the recipient can restore images after load
+       3. URL format: #s:<shareKey>:<base64(stripped JSON)>
+     The recipient opens the URL → app detects the #s: prefix → loads stripped
+     project from hash, looks up images from localStorage (same browser) OR
+     shows a "images not available" banner if the registry is missing.
+     For same-browser sharing (hand-off via link between tabs / bookmark) this
+     is seamless.  For cross-device sharing the structure / POIs / texts come
+     through perfectly; only map images are missing (banner prompts re-upload).
+  ── */
   const handleShareURL = () => {
     try {
-      const data = JSON.stringify({ version:1, rootMapId, maps });
-      const encoded = btoa(encodeURIComponent(data));
-      const url = `${window.location.origin}${window.location.pathname}#${encoded}`;
-      navigator.clipboard.writeText(url).then(()=>toast('Link copiado para a área de transferência! ✓','🔗'));
-    } catch(e){ toast('Não foi possível gerar o link — projeto muito grande para URL','⚠️'); }
+      // 1. Build stripped project (no imageUrl fields — just dimensions + all other data)
+      const strippedMaps = {};
+      const imageRegistry = {};
+      Object.entries(maps).forEach(([id, m]) => {
+        imageRegistry[id] = m.imageUrl;
+        const { imageUrl, ...rest } = m;
+        strippedMaps[id] = rest;
+      });
+
+      // 2. Persist image registry in localStorage under a short random key
+      const shareKey = uid().slice(0, 6);
+      const regKey = `cartografo_img_${shareKey}`;
+      try { localStorage.setItem(regKey, JSON.stringify(imageRegistry)); } catch {}
+
+      // 3. Build compact payload: stripped project JSON → base64
+      const payload = JSON.stringify({ version:1, rootMapId, maps: strippedMaps, shareKey });
+      const encoded = btoa(unescape(encodeURIComponent(payload)));
+
+      // 4. Build URL
+      const url = `${window.location.origin}${window.location.pathname}#s:${shareKey}:${encoded}`;
+
+      // 5. Size check — warn if still oversized (>200 KB in URL is risky)
+      if (url.length > 200_000) {
+        toast('Projeto grande demais para URL mesmo sem imagens — use Exportar JSON','⚠️');
+        return;
+      }
+
+      navigator.clipboard.writeText(url)
+        .then(() => toast(`Link copiado! (${Math.round(url.length/1024)}KB)`, '🔗'))
+        .catch(() => {
+          // Fallback: show URL in a prompt so user can copy manually
+          window.prompt('Copie o link abaixo:', url);
+        });
+    } catch(e) {
+      toast('Erro ao gerar link','❌');
+    }
   };
 
   const enterSubmap = (mapId) => {
@@ -930,7 +945,6 @@ function App() {
           selection={selection} setSelection={setSelection}
           editingTextId={editingTextId} setEditingTextId={setEditingTextId}
           updateMap={updateMap} onEnterSubmap={enterSubmap}
-          showCompass={showCompass} onToggleCompass={()=>setShowCompass(v=>!v)}
           transitioning={transitioning}/>
 
         {panelOpen&&(

@@ -185,13 +185,6 @@ input,textarea{font:inherit;color:inherit}
 .zoom-btn:last-child{border-bottom:none}
 .zoom-btn:hover{background:var(--bg-base);color:var(--ink)}
 .zoom-level{font-size:11px;font-weight:600;color:var(--ink-muted);padding:6px 0;text-align:center;border-bottom:1px solid var(--line-soft);background:var(--bg-base);min-width:38px}
-.compass-toggle{width:38px;height:38px;background:var(--bg-paper);border:1px solid var(--line);border-radius:10px;display:flex;align-items:center;justify-content:center;color:var(--ink-muted);box-shadow:0 4px 12px var(--shadow-2);transition:all .2s;cursor:pointer}
-.compass-toggle:hover{background:var(--bg-base);color:var(--ink)}
-.compass-toggle.on{color:var(--gold);border-color:var(--gold-soft)}
-
-/* Compass rose (bottom-center) */
-.compass-rose{position:absolute;bottom:20px;left:50%;transform:translateX(-50%);z-index:14;pointer-events:none;filter:drop-shadow(0 4px 14px rgba(28,42,62,.3));transition:opacity .3s,transform .3s}
-.compass-rose.off{opacity:0;transform:translateX(-50%) scale(.82);pointer-events:none}
 
 /* Hint bar */
 .hint{position:absolute;bottom:20px;left:20px;background:var(--bg-paper);border:1px solid var(--line);border-radius:8px;padding:8px 12px;font-size:12px;color:var(--ink-soft);box-shadow:0 2px 6px var(--shadow-2);display:flex;align-items:center;gap:8px;z-index:15;max-width:430px}
