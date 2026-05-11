@@ -20,7 +20,7 @@ const POI_TAGS = [
   { id:'battle',   label:'Batalha',   icon:'⚔️', bg:'#9e3a3a', fg:'#fff' },
   { id:'mystery',  label:'Mistério',  icon:'🔮', bg:'#5a3a7a', fg:'#fff' },
   { id:'camp',     label:'Acampamento',icon:'🏕️',bg:'#6a6a3a', fg:'#fff' },
-  { id:'landmark', label:'Marco',     icon:'🗿', bg:'#6a5a4a', fg:'#fff' },
+  { id:'landmark', label:'Marco',     icon:'🏛️', bg:'#6a5a4a', fg:'#fff' },
 ];
 const TAG_MAP = Object.fromEntries(POI_TAGS.map(t=>[t.id,t]));
 
@@ -185,6 +185,16 @@ function MapCanvas({ map, viewport, setViewport, tool, setTool,
 
   const wrapRef = useRef(null);
   const canvasRef = useRef(null);
+  const [hintVisible, setHintVisible] = useState(true);
+  const hintTimer = useRef(null);
+
+  // Auto-hide hint after 4s; reset whenever tool changes
+  useEffect(()=>{
+    setHintVisible(true);
+    clearTimeout(hintTimer.current);
+    hintTimer.current = setTimeout(()=>setHintVisible(false), 4000);
+    return ()=>clearTimeout(hintTimer.current);
+  },[tool]);
 
   const fitToView = useCallback(()=>{
     const wrap=wrapRef.current; if(!wrap||!map) return;
@@ -325,8 +335,7 @@ function MapCanvas({ map, viewport, setViewport, tool, setTool,
               onDoubleClick={e=>{e.stopPropagation();if(p.childMapId)onEnterSubmap(p.childMapId);else setSelection({type:'poi',id:p.id});}}
               title={p.name||`Ponto ${i+1}`}>
               <div className="poi-dot" style={{background:sel?undefined:dotBg,borderRadius:dotShape}}>
-                {p.childMapId ? <I.Layers size={14} strokeWidth={2.2}/>
-                  : tag ? <span style={{fontSize:13,lineHeight:1}}>{tag.icon}</span>
+                {tag ? <span style={{fontSize:p.childMapId?12:13,lineHeight:1}}>{tag.icon}</span>
                   : <span className="poi-num">{i+1}</span>}
               </div>
               {p.name&&<div className="poi-label">{p.name}</div>}
@@ -345,12 +354,25 @@ function MapCanvas({ map, viewport, setViewport, tool, setTool,
         </div>
       </div>
 
-      <div className="hint">
+      <div className={`hint ${hintVisible?'hint-show':'hint-hide'}`}>
         <I.Info size={14} className="hint-icon"/>
         {tool===TOOLS.POI&&<span>Clique no mapa para adicionar um <strong>ponto de interesse</strong>.</span>}
         {tool===TOOLS.TEXT&&<span>Clique no mapa para adicionar um <strong>texto</strong>.</span>}
         {tool===TOOLS.SELECT&&<span>Arraste para mover · <kbd>scroll</kbd> para zoom · clique duplo num ponto para abrir submapa</span>}
       </div>
+
+      {/* Info button — only visible when hint is hidden */}
+      <button
+        className={`hint-info-btn ${hintVisible?'hint-info-hidden':''}`}
+        onClick={()=>{
+          setHintVisible(true);
+          clearTimeout(hintTimer.current);
+          hintTimer.current = setTimeout(()=>setHintVisible(false), 4000);
+        }}
+        title="Mostrar dicas"
+      >
+        <I.Info size={14}/>
+      </button>
     </div>
   );
 }
@@ -524,7 +546,7 @@ function MapOverview({ map, updateMap, allMaps, selection, setSelection, onExpor
               return (
                 <button key={p.id} className={`poi-list-item ${active?'active':''}`} onClick={()=>setSelection({type:'poi',id:p.id})}>
                   <div className={`poi-list-marker ${sm?'has-submap':''}`} style={{background:tag?tag.bg:undefined,borderRadius:sm?'5px':'50%'}}>
-                    {sm?<I.Layers size={11}/>:tag?<span style={{fontSize:12}}>{tag.icon}</span>:(i+1)}
+                    {tag?<span style={{fontSize:12}}>{tag.icon}</span>:(i+1)}
                   </div>
                   <div className="poi-list-info">
                     <div className="poi-list-name">{p.name||`Ponto ${i+1}`}</div>
