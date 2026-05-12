@@ -324,6 +324,50 @@ function TextAnnotation({ text, selected, editing, onPointerDown, onClick, onDou
   );
 }
 
+/* ── PANEL HANDLE (swipe down to close) ── */
+function PanelHandle({ onClose }) {
+  const handleRef = useRef(null);
+  const startY = useRef(null);
+  const panelEl = useRef(null);
+
+  const onTouchStart = (e) => {
+    startY.current = e.touches[0].clientY;
+    panelEl.current = handleRef.current?.closest('.panel');
+  };
+  const onTouchMove = (e) => {
+    if (startY.current === null || !panelEl.current) return;
+    const dy = e.touches[0].clientY - startY.current;
+    if (dy > 0) {
+      // Drag down — move panel visually but don't let it go above start
+      panelEl.current.style.transition = 'none';
+      panelEl.current.style.transform = `translateY(${dy}px)`;
+    }
+  };
+  const onTouchEnd = (e) => {
+    if (startY.current === null || !panelEl.current) return;
+    const dy = e.changedTouches[0].clientY - startY.current;
+    panelEl.current.style.transition = '';
+    panelEl.current.style.transform = '';
+    // Close if dragged down more than 80px or 25% of panel height
+    const threshold = Math.min(80, panelEl.current.offsetHeight * 0.25);
+    if (dy > threshold) {
+      onClose();
+    }
+    startY.current = null;
+    panelEl.current = null;
+  };
+
+  return (
+    <div
+      ref={handleRef}
+      className="panel-handle"
+      onTouchStart={onTouchStart}
+      onTouchMove={onTouchMove}
+      onTouchEnd={onTouchEnd}
+    />
+  );
+}
+
 /* ── TOOLBAR ── */
 function Toolbar({ tool, setTool, onZoomIn, onZoomOut, onReset, darkMode, onToggleDark, viewOnly }) {
   if (viewOnly) return null;
@@ -1201,7 +1245,7 @@ function App() {
         {/* Editor panel */}
         {!viewOnly&&(
           <aside className={`panel ${panelOpen?'open':''}`}>
-            <div className="panel-handle"/>
+            <PanelHandle onClose={()=>setPanelOpen(false)}/>
             <div className="panel-header">
               <div className="panel-title">
                 <div className="panel-title-icon">
@@ -1237,7 +1281,7 @@ function App() {
         {/* Viewer panel */}
         {viewOnly&&(
           <aside className={`panel ${panelOpen?'open':''}`}>
-            <div className="panel-handle"/>
+            <PanelHandle onClose={()=>setPanelOpen(false)}/>
             <div className="panel-header">
               <div className="panel-title">
                 <div className="panel-title-icon"><I.Eye size={14}/></div>
