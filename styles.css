@@ -263,6 +263,27 @@ input,textarea{font:inherit;color:inherit}
 .feat-title{font-size:12px;font-weight:600}
 .feat-desc{font-size:11px;color:var(--ink-muted);line-height:1.45}
 
+/* --- DESKTOP (min 1025px) -- panel lives in the grid, no transforms --- */
+@media(min-width:1025px) {
+  .panel{
+    position:relative;
+    top:auto;right:auto;bottom:auto;left:auto;
+    width:auto;height:auto;max-width:none;
+    transform:none !important;
+    transition:none;
+    border-radius:0;
+    border-left:1px solid var(--line);
+    border-top:none;
+    box-shadow:none;
+    z-index:10;
+  }
+  /* When no-panel, panel is simply not rendered -- grid handles it */
+  .shell.no-panel .panel{display:none}
+  .panel-handle{display:none}
+  .panel-backdrop{display:none !important}
+  .mobile-toolbar{display:none}
+}
+
 /* --- TABLET (max 1024px) --- */
 @media(max-width:1024px) {
   .shell{grid-template-columns:var(--toolbar-w) 1fr}
@@ -337,7 +358,7 @@ input,textarea{font:inherit;color:inherit}
   }
   .panel.open{transform:translateY(0)}
 
-  /* Drag handle — bigger tap target */
+  /* Drag handle -- bigger tap target */
   .panel-handle{
     display:block;
     width:40px;height:5px;border-radius:3px;
