@@ -350,6 +350,39 @@ function Toolbar({ tool, setTool, onZoomIn, onZoomOut, onReset, darkMode, onTogg
   );
 }
 
+/* ── MOBILE BOTTOM TOOLBAR ── */
+function MobileToolbar({ tool, setTool, onReset, darkMode, onToggleDark, panelOpen, onTogglePanel, viewOnly }) {
+  const MBtn = ({ id, label, icon, onClick, active }) => (
+    <button className={`mobile-tool ${active?'active':''}`} onClick={onClick||(() => setTool(id))} aria-label={label}>
+      {icon}
+      <span className="mobile-tool-label">{label}</span>
+    </button>
+  );
+  if (viewOnly) return (
+    <div className="mobile-toolbar">
+      <MBtn label="Mover" icon={<I.Cursor size={20}/>} id={TOOLS.SELECT} active={tool===TOOLS.SELECT}/>
+      <div className="mobile-tool-sep"/>
+      <MBtn label="Ajustar" icon={<I.Maximize size={20}/>} onClick={onReset} active={false}/>
+      <div className="mobile-tool-sep"/>
+      <MBtn label="Lista" icon={<I.Map size={20}/>} onClick={onTogglePanel} active={panelOpen}/>
+      <div className="mobile-tool-sep"/>
+      <MBtn label={darkMode?'Claro':'Escuro'} icon={darkMode?<I.Sun size={20}/>:<I.Moon size={20}/>} onClick={onToggleDark} active={false}/>
+    </div>
+  );
+  return (
+    <div className="mobile-toolbar">
+      <MBtn id={TOOLS.SELECT} label="Mover" icon={<I.Cursor size={20}/>} active={tool===TOOLS.SELECT}/>
+      <MBtn id={TOOLS.POI} label="Pino" icon={<I.Pin size={20}/>} active={tool===TOOLS.POI}/>
+      <MBtn id={TOOLS.TEXT} label="Texto" icon={<I.Type size={20}/>} active={tool===TOOLS.TEXT}/>
+      <div className="mobile-tool-sep"/>
+      <MBtn label="Ajustar" icon={<I.Maximize size={20}/>} onClick={onReset} active={false}/>
+      <MBtn label="Painel" icon={<I.Menu size={20}/>} onClick={onTogglePanel} active={panelOpen}/>
+      <div className="mobile-tool-sep"/>
+      <MBtn label={darkMode?'Claro':'Escuro'} icon={darkMode?<I.Sun size={20}/>:<I.Moon size={20}/>} onClick={onToggleDark} active={false}/>
+    </div>
+  );
+}
+
 /* ── MAP CANVAS ── */
 function MapCanvas({ map, viewport, setViewport, tool, setTool,
   selection, setSelection, editingTextId, setEditingTextId,
@@ -1165,8 +1198,10 @@ function App() {
           transitioning={transitioning} viewOnly={viewOnly}
           onOpenPanel={()=>setPanelOpen(true)}/>
 
-        {panelOpen&&!viewOnly&&(
-          <aside className="panel">
+        {/* Editor panel */}
+        {!viewOnly&&(
+          <aside className={`panel ${panelOpen?'open':''}`}>
+            <div className="panel-handle"/>
             <div className="panel-header">
               <div className="panel-title">
                 <div className="panel-title-icon">
@@ -1176,7 +1211,10 @@ function App() {
                   {selectedPoi?(selectedPoi.name||`Ponto ${selectedPoiIdx+1}`):selectedText?'Texto':currentMap.name}
                 </span>
               </div>
-              {selection&&<button className="btn btn-icon" onClick={()=>setSelection(null)}><I.X size={15}/></button>}
+              <div style={{display:'flex',gap:4}}>
+                {selection&&<button className="btn btn-icon" onClick={()=>setSelection(null)}><I.X size={15}/></button>}
+                <button className="btn btn-icon" onClick={()=>setPanelOpen(false)} title="Fechar painel"><I.ChevronRight size={15}/></button>
+              </div>
             </div>
             <div className="panel-body">
               {selectedPoi ? (
@@ -1196,9 +1234,10 @@ function App() {
           </aside>
         )}
 
-        {/* Viewer side panel — read-only POI list */}
-        {viewOnly&&panelOpen&&(
-          <aside className="panel">
+        {/* Viewer panel */}
+        {viewOnly&&(
+          <aside className={`panel ${panelOpen?'open':''}`}>
+            <div className="panel-handle"/>
             <div className="panel-header">
               <div className="panel-title">
                 <div className="panel-title-icon"><I.Eye size={14}/></div>
@@ -1216,7 +1255,21 @@ function App() {
             </div>
           </aside>
         )}
+
+        {/* Backdrop for mobile panel */}
+        {panelOpen&&(
+          <div onClick={()=>setPanelOpen(false)}
+            style={{position:'fixed',inset:0,zIndex:49,background:'rgba(0,0,0,.3)',backdropFilter:'blur(1px)',display:'none'}}
+            className="panel-backdrop"/>
+        )}
       </div>
+
+      {/* Mobile bottom toolbar */}
+      <MobileToolbar tool={tool} setTool={setTool}
+        onReset={()=>setViewport(null)}
+        darkMode={darkMode} onToggleDark={()=>setDarkMode(v=>!v)}
+        panelOpen={panelOpen} onTogglePanel={()=>setPanelOpen(o=>!o)}
+        viewOnly={viewOnly}/>
 
       <Toast messages={toasts}/>
     </div>
