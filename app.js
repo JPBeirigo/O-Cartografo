@@ -353,7 +353,7 @@ function Toolbar({ tool, setTool, onZoomIn, onZoomOut, onReset, darkMode, onTogg
 /* ── MAP CANVAS ── */
 function MapCanvas({ map, viewport, setViewport, tool, setTool,
   selection, setSelection, editingTextId, setEditingTextId,
-  updateMap, onEnterSubmap, transitioning, viewOnly }) {
+  updateMap, onEnterSubmap, transitioning, viewOnly, onOpenPanel }) {
 
   const wrapRef = useRef(null);
   const canvasRef = useRef(null);
@@ -492,7 +492,7 @@ function MapCanvas({ map, viewport, setViewport, tool, setTool,
               className={`poi ${sel?'selected':''} ${p.childMapId?'has-submap':''} ${viewOnly?'view-only':''}`}
               style={{left:`${sx}px`,top:`${sy}px`}}
               onPointerDown={viewOnly?undefined:dragItem(()=>({x:p.x,y:p.y}),(nx,ny)=>updateMap(m=>({...m,pois:m.pois.map(q=>q.id===p.id?{...q,x:clamp(nx,0,map.imgW),y:clamp(ny,0,map.imgH)}:q)})))}
-              onClick={e=>{e.stopPropagation();if(!viewOnly)setSelection({type:'poi',id:p.id});}}
+              onClick={e=>{e.stopPropagation();if(viewOnly){setSelection(prev=>prev?.id===p.id?null:{type:'poi',id:p.id});onOpenPanel&&onOpenPanel();}else{setSelection({type:'poi',id:p.id});}}}
               onDoubleClick={e=>{e.stopPropagation();if(p.childMapId)onEnterSubmap(p.childMapId);}}
               title={p.name||`Ponto ${i+1}`}>
               <div className="poi-dot" style={{background:sel?undefined:dotBg,borderRadius:dotShape}}>
@@ -1145,7 +1145,6 @@ function App() {
           )}
           {!viewOnly&&<button className="btn btn-ghost" onClick={handleExport}><I.Download size={15}/><span>Exportar</span></button>}
           {user&&!viewOnly&&<button className="btn btn-ghost" onClick={()=>setScreen('dashboard')}><I.Map size={15}/><span>Meus mapas</span></button>}
-          {viewOnly&&<button className="btn btn-ghost" onClick={()=>window.close()}><I.X size={15}/><span>Fechar</span></button>}
           <button className="btn btn-icon" onClick={()=>setPanelOpen(o=>!o)} aria-label="Alternar painel"><I.Menu size={16}/></button>
         </div>
       </header>
@@ -1163,7 +1162,8 @@ function App() {
           selection={selection} setSelection={setSelection}
           editingTextId={editingTextId} setEditingTextId={setEditingTextId}
           updateMap={updateMap} onEnterSubmap={enterSubmap}
-          transitioning={transitioning} viewOnly={viewOnly}/>
+          transitioning={transitioning} viewOnly={viewOnly}
+          onOpenPanel={()=>setPanelOpen(true)}/>
 
         {panelOpen&&!viewOnly&&(
           <aside className="panel">
